@@ -17,14 +17,19 @@ down_revision: Union[str, Sequence[str], None] = ${repr(down_revision)}
 branch_labels: Union[str, Sequence[str], None] = ${repr(branch_labels)}
 depends_on: Union[str, Sequence[str], None] = ${repr(depends_on)}
 
+def apply_schema_upgrades() -> None:
+    ${upgrades if upgrades else "pass"}
+
+def apply_schema_downgrades() -> None:
+    ${downgrades if downgrades else "pass"}
 
 def upgrade() -> None:
     """Upgrade schema."""
-    with op.get_context().autocommit_block():        
-        ${upgrades if upgrades else "pass"}
+    with op.get_context().autocommit_block():   
+        apply_schema_upgrades()
 
 
 def downgrade() -> None:
     """Downgrade schema."""
-    with op.get_context().autocommit_block():
-        ${downgrades if downgrades else "pass"}
+    with op.get_context().autocommit_block():   
+        apply_schema_downgrades()      

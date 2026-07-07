@@ -10,7 +10,7 @@ Before doing anything else, run `poetry install`.
 export SPANNER_EMULATOR_HOST=localhost:9010
 export DB_URI=spanner+spanner:///projects/emulator-test-project/instances/test-instance/databases/test-db
 ```
-4. Create a Spanner instance and db in the emulator: `poetry run python scripts/create_local_db.py`
+4. Create a Spanner instance and db in the emulator: `poetry run python scripts/create_db.py`
 
 
 ## Running against deployed instance
@@ -20,7 +20,7 @@ export DB_URI=spanner+spanner:///projects/my-project-id/instances/spanner-demo/d
 ```
 
 ## Alembic migrations
-- `poetry run alembic revision --autogenerate -m migration` to generate a migration
+- `poetry run alembic revision --autogenerate -m init` to generate a migration
 - `poetry run alembic upgrade head` to upgrade to latest
 
 
