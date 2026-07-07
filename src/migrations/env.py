@@ -9,6 +9,37 @@ from alembic import context
 from src.models import Base
 
 
+# --- START sqlalchemy-spanner workarounds ---
+from google.cloud.sqlalchemy_spanner.sqlalchemy_spanner import SpannerDialect
+
+
+original_get_multi_pk = SpannerDialect.get_multi_pk_constraint
+original__get_table_filter_query = SpannerDialect._get_table_filter_query
+
+
+def patched_get_multi_pk_constraint(self, connection, **kw):
+    """Intercepts the PK constraint dictionary to inject the missing 'name' key."""
+    result = original_get_multi_pk(self, connection, **kw)
+    for pk_dict in result.values():
+        if "name" not in pk_dict:
+            pk_dict["name"] = None  
+    return result
+
+
+def patched__get_table_filter_query(
+    self, filter_names, *args, **kwargs
+):
+    """Pass None for filter names instead of empty list to avoid invalid SQL generation"""
+    if len(filter_names) == 0:
+        filter_names = None
+    
+    return original__get_table_filter_query(self, filter_names, *args, **kwargs)
+    
+
+SpannerDialect._get_table_filter_query = patched__get_table_filter_query
+SpannerDialect.get_multi_pk_constraint = patched_get_multi_pk_constraint
+# --- END of workarounds ---
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
